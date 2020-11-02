@@ -28,14 +28,14 @@ class App extends React.Component {
         }
 
         this.setState((state) => ({
-          secondOperand: Number.parseInt(
+          secondOperand: parseInt(
             state.secondOperand.toString() + value.toString()
           ),
         }));
         return null;
       }
 
-      this.setState({ secondOperand: Number.parseInt(value) });
+      this.setState({ secondOperand: parseInt(value) });
       return null;
     }
 
@@ -45,26 +45,27 @@ class App extends React.Component {
       }
 
       this.setState((state) => ({
-        firstOperand: Number.parseInt(
+        firstOperand: parseInt(
           state.firstOperand.toString() + value.toString()
         ),
       }));
       return null;
     }
 
-    this.setState({ firstOperand: Number.parseInt(value) });
+    this.setState({ firstOperand: parseInt(value) });
   };
 
-  calculateResult = (operation = this.state.operation, hidden) => {
+  calculateResult = (operation = this.state.operation) => {
     if (this.state.secondOperand) {
       this.setState((state) => ({
         firstOperand: this.handleOperation[state.operation](
-          Number.parseInt(state.firstOperand),
-          Number.parseInt(state.secondOperand)
+          state.firstOperand,
+          state.secondOperand
         ),
         secondOperand: null,
       }));
     }
+
     this.setState({ operation: operation });
   };
 
@@ -89,11 +90,9 @@ class App extends React.Component {
           <button
             type="button"
             className="app-cell"
-            // onClick={() => {
-            //   if (this.state.canCalculate) {
-            //     this.calculateResult();
-            //   }
-            // }}
+            onClick={() => {
+              this.calculateResult();
+            }}
           >
             =
           </button>
