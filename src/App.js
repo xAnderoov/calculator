@@ -8,7 +8,7 @@ class App extends React.Component {
     super(props);
     this.state = {
       firstOperand: 0,
-      secondOperand: 0,
+      secondOperand: null,
       operation: null,
       canCalculate: false,
     };
@@ -22,14 +22,14 @@ class App extends React.Component {
   };
 
   handleClick = (value) => {
-    if (!this.state.canCalculate && this.state.operation) {
-      this.setState((state) => ({
-        firstOperand: state.secondOperand,
-        secondOperand: value,
-        canCalculate: true,
-      }));
-      return null;
-    }
+    // if (!this.state.canCalculate && this.state.operation) {
+    //   this.setState((state) => ({
+    //     firstOperand: state.secondOperand,
+    //     secondOperand: value,
+    //     canCalculate: true,
+    //   }));
+    //   return null;
+    // }
     if (this.state.secondOperand) {
       if (this.state.secondOperand.toString().length === 8) {
         return null;
@@ -43,31 +43,42 @@ class App extends React.Component {
         return null;
       });
     }
-    this.setState({ secondOperand: value });
+    this.setState({ secondOperand: value, canCalculate: true });
+    // this.setState({ secondOperand: value});
   };
 
-  calculateResult = (operation) => {
-    if (this.state.operation) {
+  calculateResult = (operation = this.state.operation) => {
+    if (this.state.canCalculate) {
+      if (this.state.operation !== operation) {
+        this.setState({ canCalculate: false });
+      }
       this.setState((state) => ({
-        firstOperand: this.handleOperation[state.operation](
+        secondOperand: this.handleOperation[state.operation](
           state.firstOperand,
           state.secondOperand
         ),
-        // operation: null,
+        operation: operation,
       }));
+      if (!this.state.canCalculate) {
+        this.setState((state) => ({
+          firstOperand: state.secondOperand,
+          secondOperand: null,
+        }));
+      }
       return null;
     }
-    this.setState({
-      // firstOperand: value,
-      operation: operation,
-    });
+    this.setState({ operation: operation });
   };
 
   render() {
     return (
       <div className="app">
         <div className="app-wrapper">
-          <div className="app-result">{this.state.secondOperand}</div>
+          <div className="app-result">
+            {this.state.canCalculate || this.state.secondOperand
+              ? this.state.secondOperand
+              : this.state.firstOperand}
+          </div>
           <button type="button" className="app-cell">
             C
           </button>
@@ -77,7 +88,15 @@ class App extends React.Component {
           <button type="button" className="app-cell">
             <Backspace />
           </button>
-          <button type="button" className="app-cell">
+          <button
+            type="button"
+            className="app-cell"
+            onClick={() => {
+              if (this.state.canCalculate) {
+                this.calculateResult();
+              }
+            }}
+          >
             =
           </button>
           <button
@@ -111,7 +130,7 @@ class App extends React.Component {
             type="button"
             className="app-cell"
             onClick={() => {
-              this.setState({ operation: "*" });
+              this.calculateResult("*");
             }}
           >
             <Multiply />
@@ -148,7 +167,7 @@ class App extends React.Component {
             type="button"
             className="app-cell"
             onClick={() => {
-              this.setState({ operation: "/" });
+              this.calculateResult("/");
             }}
           >
             /
@@ -184,7 +203,7 @@ class App extends React.Component {
             type="button"
             className="app-cell"
             onClick={() => {
-              this.setState({ operation: "-" });
+              this.calculateResult("-");
             }}
           >
             -
@@ -208,7 +227,7 @@ class App extends React.Component {
             type="button"
             className="app-cell"
             onClick={() => {
-              this.setState({ operation: "+" });
+              this.calculateResult("+");
             }}
           >
             +
