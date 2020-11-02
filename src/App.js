@@ -10,7 +10,6 @@ class App extends React.Component {
       firstOperand: 0,
       secondOperand: null,
       operation: null,
-      canCalculate: false,
     };
   }
 
@@ -23,58 +22,48 @@ class App extends React.Component {
 
   handleClick = (value) => {
     if (this.state.operation) {
-      if (!this.state.canCalculate) {
-        if (this.state.secondOperand !== null) {
-          this.setState((state) => ({
-            firstOperand: state.secondOperand,
-            secondOperand: null,
-          }));
+      if (this.state.secondOperand !== null) {
+        if (this.state.secondOperand.toString().length === 8) {
+          return null;
         }
+
+        this.setState((state) => ({
+          secondOperand: Number.parseInt(
+            state.secondOperand.toString() + value.toString()
+          ),
+        }));
+        return null;
       }
 
-      this.setState(() => ({
-        canCalculate: true,
-      }));
-
+      this.setState({ secondOperand: Number.parseInt(value) });
       return null;
     }
-    
-    // clean start
+
     if (this.state.firstOperand !== 0) {
       if (this.state.firstOperand.toString().length === 8) {
         return null;
       }
 
       this.setState((state) => ({
-        firstOperand: Number(
+        firstOperand: Number.parseInt(
           state.firstOperand.toString() + value.toString()
         ),
       }));
       return null;
     }
 
-    this.setState({ firstOperand: value });
+    this.setState({ firstOperand: Number.parseInt(value) });
   };
 
-  calculateResult = (operation = this.state.operation) => {
-    if (this.state.canCalculate) {
-      if (this.state.operation !== operation) {
-        this.setState({ canCalculate: false });
-      }
+  calculateResult = (operation = this.state.operation, hidden) => {
+    if (this.state.secondOperand) {
       this.setState((state) => ({
-        secondOperand: this.handleOperation[state.operation](
-          state.firstOperand,
-          state.secondOperand
+        firstOperand: this.handleOperation[state.operation](
+          Number.parseInt(state.firstOperand),
+          Number.parseInt(state.secondOperand)
         ),
-        operation: operation,
+        secondOperand: null,
       }));
-      if (!this.state.canCalculate) {
-        this.setState((state) => ({
-          firstOperand: state.secondOperand,
-          secondOperand: null,
-        }));
-      }
-      return null;
     }
     this.setState({ operation: operation });
   };
@@ -84,7 +73,7 @@ class App extends React.Component {
       <div className="app">
         <div className="app-wrapper">
           <div className="app-result">
-            {this.state.canCalculate || this.state.secondOperand
+            {this.state.secondOperand
               ? this.state.secondOperand
               : this.state.firstOperand}
           </div>
@@ -100,11 +89,11 @@ class App extends React.Component {
           <button
             type="button"
             className="app-cell"
-            onClick={() => {
-              if (this.state.canCalculate) {
-                this.calculateResult();
-              }
-            }}
+            // onClick={() => {
+            //   if (this.state.canCalculate) {
+            //     this.calculateResult();
+            //   }
+            // }}
           >
             =
           </button>
