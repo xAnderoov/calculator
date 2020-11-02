@@ -7,8 +7,10 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      result: 0,
+      firstOperand: 0,
+      secondOperand: 0,
       operation: null,
+      canCalculate: false,
     };
   }
 
@@ -20,18 +22,44 @@ class App extends React.Component {
   };
 
   handleClick = (value) => {
-    if (this.state.operation) {
-      this.setState({
-        result: this.handleOperation[this.state.operation](
-          this.state.result,
-          value
-        ),
-        operation: null,
+    if (!this.state.canCalculate && this.state.operation) {
+      this.setState((state) => ({
+        firstOperand: state.secondOperand,
+        secondOperand: value,
+        canCalculate: true,
+      }));
+      return null;
+    }
+    if (this.state.secondOperand) {
+      if (this.state.secondOperand.toString().length === 8) {
+        return null;
+      }
+      this.setState((state) => {
+        this.setState({
+          secondOperand: Number(
+            state.secondOperand.toString() + value.toString()
+          ),
+        });
+        return null;
       });
+    }
+    this.setState({ secondOperand: value });
+  };
+
+  calculateResult = (operation) => {
+    if (this.state.operation) {
+      this.setState((state) => ({
+        firstOperand: this.handleOperation[state.operation](
+          state.firstOperand,
+          state.secondOperand
+        ),
+        // operation: null,
+      }));
       return null;
     }
     this.setState({
-      result: value,
+      // firstOperand: value,
+      operation: operation,
     });
   };
 
@@ -39,7 +67,7 @@ class App extends React.Component {
     return (
       <div className="app">
         <div className="app-wrapper">
-          <div className="app-result">{this.state.result}</div>
+          <div className="app-result">{this.state.secondOperand}</div>
           <button type="button" className="app-cell">
             C
           </button>
@@ -79,9 +107,13 @@ class App extends React.Component {
           >
             9
           </button>
-          <button type="button" className="app-cell" onClick={() => {
+          <button
+            type="button"
+            className="app-cell"
+            onClick={() => {
               this.setState({ operation: "*" });
-            }}>
+            }}
+          >
             <Multiply />
           </button>
           <button
@@ -112,32 +144,49 @@ class App extends React.Component {
           >
             8
           </button>
-          <button type="button" className="app-cell" onClick={() => {
+          <button
+            type="button"
+            className="app-cell"
+            onClick={() => {
               this.setState({ operation: "/" });
-            }}>
+            }}
+          >
             /
           </button>
-          <button type="button" className="app-cell" 
+          <button
+            type="button"
+            className="app-cell"
             onClick={() => {
               this.handleClick(1);
-            }}>
+            }}
+          >
             1
           </button>
-          <button type="button" className="app-cell" 
+          <button
+            type="button"
+            className="app-cell"
             onClick={() => {
               this.handleClick(4);
-            }}>
+            }}
+          >
             4
           </button>
-          <button type="button" className="app-cell" 
+          <button
+            type="button"
+            className="app-cell"
             onClick={() => {
               this.handleClick(7);
-            }}>
+            }}
+          >
             7
           </button>
-          <button type="button" className="app-cell" onClick={() => {
+          <button
+            type="button"
+            className="app-cell"
+            onClick={() => {
               this.setState({ operation: "-" });
-            }}>
+            }}
+          >
             -
           </button>
           <button type="button" className="app-cell app-cell--vertical">
