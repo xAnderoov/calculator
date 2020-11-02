@@ -22,29 +22,38 @@ class App extends React.Component {
   };
 
   handleClick = (value) => {
-    // if (!this.state.canCalculate && this.state.operation) {
-    //   this.setState((state) => ({
-    //     firstOperand: state.secondOperand,
-    //     secondOperand: value,
-    //     canCalculate: true,
-    //   }));
-    //   return null;
-    // }
-    if (this.state.secondOperand) {
-      if (this.state.secondOperand.toString().length === 8) {
+    if (this.state.operation) {
+      if (!this.state.canCalculate) {
+        if (this.state.secondOperand !== null) {
+          this.setState((state) => ({
+            firstOperand: state.secondOperand,
+            secondOperand: null,
+          }));
+        }
+      }
+
+      this.setState(() => ({
+        canCalculate: true,
+      }));
+
+      return null;
+    }
+    
+    // clean start
+    if (this.state.firstOperand !== 0) {
+      if (this.state.firstOperand.toString().length === 8) {
         return null;
       }
-      this.setState((state) => {
-        this.setState({
-          secondOperand: Number(
-            state.secondOperand.toString() + value.toString()
-          ),
-        });
-        return null;
-      });
+
+      this.setState((state) => ({
+        firstOperand: Number(
+          state.firstOperand.toString() + value.toString()
+        ),
+      }));
+      return null;
     }
-    this.setState({ secondOperand: value, canCalculate: true });
-    // this.setState({ secondOperand: value});
+
+    this.setState({ firstOperand: value });
   };
 
   calculateResult = (operation = this.state.operation) => {
