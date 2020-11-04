@@ -23,6 +23,16 @@ class App extends React.Component {
           return null;
         }
 
+        if (this.state.isFloat) {
+          this.setState((state) => ({
+            secondOperand: parseFloat(
+              state.secondOperand.toString() + "." + value.toString()
+            ),
+            isFloat: false,
+          }));
+          return null;
+        }
+
         this.setState((state) => ({
           secondOperand: parseFloat(
             state.secondOperand.toString() + value.toString()
@@ -37,6 +47,16 @@ class App extends React.Component {
 
     if (this.state.firstOperand !== 0) {
       if (this.state.firstOperand.toString().length === 8) {
+        return null;
+      }
+
+      if (this.state.isFloat) {
+        this.setState((state) => ({
+          firstOperand: parseFloat(
+            state.firstOperand.toString() + "." + value.toString()
+          ),
+          isFloat: false,
+        }));
         return null;
       }
 
@@ -66,27 +86,33 @@ class App extends React.Component {
   };
 
   render() {
+    const result = () => {
+      if (!this.state.isFloat) {
+        return this.state.secondOperand
+          ? this.state.secondOperand
+          : this.state.firstOperand;
+      }
+      return this.state.secondOperand
+        ? `${this.state.secondOperand}.`
+        : `${this.state.firstOperand}.`;
+    };
     return (
       <div className="app">
         <div className="app-wrapper">
-          <div className="app-result">
-            {this.state.secondOperand
-              ? this.state.secondOperand
-              : this.state.firstOperand}
-          </div>
+          <div className="app-result">{result()}</div>
           <button
             type="button"
             className="app-cell"
             onClick={() => {
               if (this.state.secondOperand) {
-                this.setState({ secondOperand: null });
+                this.setState({ secondOperand: null, isFloat: null });
                 return null;
               }
               if (this.state.operation) {
                 this.setState({ operation: null, secondOperand: null });
                 return null;
               }
-              this.setState({ firstOperand: 0 });
+              this.setState({ firstOperand: 0, isFloat: null });
             }}
           >
             C
@@ -286,13 +312,19 @@ class App extends React.Component {
             type="button"
             className="app-cell"
             onClick={() => {
+              if (this.state.isFloat) {
+                return null;
+              }
               if (this.state.operation && this.state.secondOperand === null) {
                 return null;
               }
-
-              // first check if currentNumber not float
-
-              if (!this.state.isFloat) {
+              if (this.state.secondOperand !== null) {
+                if (this.state.secondOperand.toString().search(".") !== -1) {
+                  this.setState({ isFloat: true });
+                }
+                return null;
+              }
+              if (this.state.firstOperand.toString().search(".") !== -1) {
                 this.setState({ isFloat: true });
               }
             }}
