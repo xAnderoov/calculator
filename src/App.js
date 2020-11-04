@@ -10,13 +10,29 @@ class App extends React.Component {
   }
 
   handleOperation = {
-    "+": (x, y) => x + y,
-    "-": (x, y) => x - y,
-    "/": (x, y) => x / y,
-    "*": (x, y) => x * y,
+    "+": (x, y) => Math.round((x + y) * 1000) / 1000,
+    "-": (x, y) => Math.round((x - y) * 1000) / 1000,
+    "/": (x, y) => Math.round((x / y) * 1000) / 1000,
+    "*": (x, y) => Math.round(x * y * 1000) / 1000,
+  };
+
+  handleSelector = (operation) => {
+    return operation === this.state.operation &&
+      this.state.firstOperand !== "ERR"
+      ? "app-cell--active"
+      : "";
   };
 
   handleClick = (value) => {
+    if (this.state.firstOperand === "ERR") {
+      return null;
+    }
+
+    if (this.state.operation === "=") {
+      this.setState({ firstOperand: parseFloat(value), operation: null });
+      return null;
+    }
+
     if (this.state.operation) {
       if (this.state.secondOperand !== null) {
         if (this.state.secondOperand.toString().length === 8) {
@@ -45,21 +61,21 @@ class App extends React.Component {
       return null;
     }
 
+    if (this.state.firstOperand.toString().length === 8) {
+      return null;
+    }
+
+    if (this.state.isFloat) {
+      this.setState((state) => ({
+        firstOperand: parseFloat(
+          state.firstOperand.toString() + "." + value.toString()
+        ),
+        isFloat: false,
+      }));
+      return null;
+    }
+
     if (this.state.firstOperand !== 0) {
-      if (this.state.firstOperand.toString().length === 8) {
-        return null;
-      }
-
-      if (this.state.isFloat) {
-        this.setState((state) => ({
-          firstOperand: parseFloat(
-            state.firstOperand.toString() + "." + value.toString()
-          ),
-          isFloat: false,
-        }));
-        return null;
-      }
-
       this.setState((state) => ({
         firstOperand: parseFloat(
           state.firstOperand.toString() + value.toString()
@@ -68,21 +84,27 @@ class App extends React.Component {
       return null;
     }
 
-    this.setState({ firstOperand: parseFloat(value) });
+    this.setState({ firstOperand: parseFloat(value), operation: null });
   };
 
-  calculateResult = (operation = this.state.operation) => {
+  calculateResult = (operation) => {
     if (this.state.secondOperand) {
-      this.setState((state) => ({
-        firstOperand: this.handleOperation[state.operation](
-          state.firstOperand,
-          state.secondOperand
-        ),
+      let result = this.handleOperation[this.state.operation](
+        this.state.firstOperand,
+        this.state.secondOperand
+      );
+
+      if (result.toString().length > 8) {
+        result = "ERR";
+      }
+
+      this.setState({
+        firstOperand: result,
         secondOperand: null,
-      }));
+      });
     }
 
-    this.setState({ operation: operation });
+    this.setState({ operation: operation, isFloat: false });
   };
 
   render() {
@@ -108,11 +130,15 @@ class App extends React.Component {
                 this.setState({ secondOperand: null, isFloat: false });
                 return null;
               }
-              if (this.state.operation) {
+              if (this.state.operation && this.state.operation !== "=") {
                 this.setState({ operation: null, secondOperand: null });
                 return null;
               }
-              this.setState({ firstOperand: 0, isFloat: false });
+              this.setState({
+                firstOperand: 0,
+                operation: null,
+                isFloat: false,
+              });
             }}
           >
             C
@@ -130,7 +156,11 @@ class App extends React.Component {
             type="button"
             className="app-cell"
             onClick={() => {
-              if (this.state.operation && this.state.secondOperand === null) {
+              if (
+                this.state.operation &&
+                this.state.operation !== "=" &&
+                this.state.secondOperand === null
+              ) {
                 return null;
               }
 
@@ -140,13 +170,18 @@ class App extends React.Component {
               }
 
               const deleteDigit = (key, number) => {
+                const numberString = number.toString();
+                if (numberString[numberString.length - 2] === ".") {
+                  this.setState({ isFloat: true });
+                }
+
                 let value = null;
-                if (number.toString().length === 1) {
+                if (numberString.length === 1) {
                   value = 0;
                 }
                 if (value === null) {
                   value = parseFloat(
-                    number.toString().slice(0, number.toString().length - 1)
+                    numberString.slice(0, numberString.length - 1)
                   );
                 }
                 this.setState({
@@ -156,7 +191,7 @@ class App extends React.Component {
 
               if (this.state.secondOperand !== null) {
                 deleteDigit(`secondOperand`, this.state.secondOperand);
-                return null;  
+                return null;
               }
 
               if (this.state.firstOperand) {
@@ -170,7 +205,7 @@ class App extends React.Component {
             type="button"
             className="app-cell"
             onClick={() => {
-              this.calculateResult();
+              this.calculateResult("=");
             }}
           >
             =
@@ -204,7 +239,7 @@ class App extends React.Component {
           </button>
           <button
             type="button"
-            className="app-cell"
+            className={`app-cell ${this.handleSelector("*")}`}
             onClick={() => {
               this.calculateResult("*");
             }}
@@ -241,7 +276,7 @@ class App extends React.Component {
           </button>
           <button
             type="button"
-            className="app-cell"
+            className={`app-cell ${this.handleSelector("/")}`}
             onClick={() => {
               this.calculateResult("/");
             }}
@@ -277,7 +312,7 @@ class App extends React.Component {
           </button>
           <button
             type="button"
-            className="app-cell"
+            className={`app-cell ${this.handleSelector("-")}`}
             onClick={() => {
               this.calculateResult("-");
             }}
@@ -288,7 +323,11 @@ class App extends React.Component {
             type="button"
             className="app-cell app-cell--vertical"
             onClick={() => {
-              if (this.state.operation && this.state.secondOperand === null) {
+              if (
+                this.state.operation &&
+                this.state.operation !== "=" &&
+                this.state.secondOperand === null
+              ) {
                 return null;
               }
 
@@ -322,7 +361,11 @@ class App extends React.Component {
               if (this.state.isFloat) {
                 return null;
               }
-              if (this.state.operation && this.state.secondOperand === null) {
+              if (
+                this.state.operation &&
+                this.state.operation !== "=" &&
+                this.state.secondOperand === null
+              ) {
                 return null;
               }
               if (this.state.secondOperand !== null) {
@@ -340,7 +383,7 @@ class App extends React.Component {
           </button>
           <button
             type="button"
-            className="app-cell"
+            className={`app-cell ${this.handleSelector("+")}`}
             onClick={() => {
               this.calculateResult("+");
             }}

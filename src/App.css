@@ -8,7 +8,7 @@
 
 .app-title {
   margin: 40px 0 20px;
-  
+
   font-size: 48px;
   font-weight: 400;
 }
@@ -46,4 +46,13 @@
 
 .app-cell--vertical {
   line-height: 10px;
+}
+
+.app-cell--active {
+  background-color: rgba(255, 20, 147, 0.8);
+  color: white;
+}
+
+.app-cell--active path {
+  fill: aquamarine;
 }
