@@ -88,11 +88,11 @@ class App extends React.Component {
   render() {
     const result = () => {
       if (!this.state.isFloat) {
-        return this.state.secondOperand
+        return this.state.secondOperand !== null
           ? this.state.secondOperand
           : this.state.firstOperand;
       }
-      return this.state.secondOperand
+      return this.state.secondOperand !== null
         ? `${this.state.secondOperand}.`
         : `${this.state.firstOperand}.`;
     };
@@ -104,15 +104,15 @@ class App extends React.Component {
             type="button"
             className="app-cell"
             onClick={() => {
-              if (this.state.secondOperand) {
-                this.setState({ secondOperand: null, isFloat: null });
+              if (this.state.secondOperand !== null) {
+                this.setState({ secondOperand: null, isFloat: false });
                 return null;
               }
               if (this.state.operation) {
                 this.setState({ operation: null, secondOperand: null });
                 return null;
               }
-              this.setState({ firstOperand: 0, isFloat: null });
+              this.setState({ firstOperand: 0, isFloat: false });
             }}
           >
             C
@@ -130,30 +130,37 @@ class App extends React.Component {
             type="button"
             className="app-cell"
             onClick={() => {
-              const handleNumber = (number) => {
-                if (number.toString().length === 1) {
-                  return 0;
-                }
-                return parseFloat(
-                  number.toString().slice(0, number.toString().length - 1)
-                );
-              };
-
               if (this.state.operation && this.state.secondOperand === null) {
                 return null;
               }
 
-              if (this.state.secondOperand !== null) {
-                this.setState((state) => ({
-                  secondOperand: handleNumber(state.secondOperand),
-                }));
+              if (this.state.isFloat) {
+                this.setState({ isFloat: false });
                 return null;
               }
 
+              const deleteDigit = (key, number) => {
+                let value = null;
+                if (number.toString().length === 1) {
+                  value = 0;
+                }
+                if (value === null) {
+                  value = parseFloat(
+                    number.toString().slice(0, number.toString().length - 1)
+                  );
+                }
+                this.setState({
+                  [`${key}`]: value,
+                });
+              };
+
+              if (this.state.secondOperand !== null) {
+                deleteDigit(`secondOperand`, this.state.secondOperand);
+                return null;  
+              }
+
               if (this.state.firstOperand) {
-                this.setState((state) => ({
-                  firstOperand: handleNumber(state.firstOperand),
-                }));
+                deleteDigit(`firstOperand`, this.state.firstOperand);
               }
             }}
           >
