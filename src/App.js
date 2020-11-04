@@ -6,11 +6,7 @@ import { ReactComponent as Multiply } from "./multiply.svg";
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      firstOperand: 0,
-      secondOperand: null,
-      operation: null,
-    };
+    this.state = this.props.initialState;
   }
 
   handleOperation = {
@@ -78,13 +74,61 @@ class App extends React.Component {
               ? this.state.secondOperand
               : this.state.firstOperand}
           </div>
-          <button type="button" className="app-cell">
+          <button
+            type="button"
+            className="app-cell"
+            onClick={() => {
+              if (this.state.secondOperand) {
+                this.setState({ secondOperand: null });
+                return null;
+              }
+              if (this.state.operation) {
+                this.setState({ operation: null, secondOperand: null });
+                return null;
+              }
+              this.setState({ firstOperand: 0 });
+            }}
+          >
             C
           </button>
-          <button type="button" className="app-cell">
+          <button
+            type="button"
+            className="app-cell"
+            onClick={() => {
+              this.setState(this.props.initialState);
+            }}
+          >
             AC
           </button>
-          <button type="button" className="app-cell">
+          <button
+            type="button"
+            className="app-cell"
+            onClick={() => {
+              const handleNumber = (number) => {
+                if (number.toString().length === 1) {
+                  return 0;
+                }
+                return number.toString().slice(0, number.toString().length - 1);
+              };
+
+              if (this.state.operation && this.state.secondOperand === null) {
+                return null;
+              }
+
+              if (this.state.secondOperand !== null) {
+                this.setState({
+                  secondOperand: handleNumber(this.state.secondOperand),
+                });
+                return null;
+              }
+
+              if (this.state.firstOperand) {
+                this.setState({
+                  firstOperand: handleNumber(this.state.firstOperand),
+                });
+              }
+            }}
+          >
             <Backspace />
           </button>
           <button
