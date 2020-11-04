@@ -7,6 +7,7 @@ const INITIAL_STATE = {
   firstOperand: 0,
   secondOperand: null,
   operation: null,
+  isFloat: false,
 };
 
 ReactDOM.render(
