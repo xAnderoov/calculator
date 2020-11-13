@@ -10,6 +10,7 @@ const INITIAL_STATE = {
   isFloat: false,
 };
 
+// horray we on hooks branch
 ReactDOM.render(
   <React.StrictMode>
     <App initialState={INITIAL_STATE}/>
