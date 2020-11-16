@@ -7,17 +7,16 @@ const App = () => {
   const [operand1, setOperand1] = useState(0);
   const [operand2, setOperand2] = useState(null);
   const [operation, setOperation] = useState(null);
-  const [isFloat, setIsFloat] = useState(false);
   const [onScreen, setOnScreen] = useState(0);
+  const [isFloat, setIsFloat] = useState(false);
 
   useEffect(() => {
-    if (operand2 !== null) {
-      setOnScreen(operand2);
-    } else {
-      setOnScreen(operand1);
+    if (!isFloat) {
+      setOnScreen(operand2 !== null ? operand2 : operand1);
+      return null;
     }
-
-  }, [operand1, operand2]);
+    setOnScreen(operand2 !== null ? `${operand2}.` : `${operand1}.`);
+  }, [operand1, operand2, isFloat]);
 
   const handleOperation = {
     "+": (x, y) => Math.round((x + y) * 1000) / 1000,
@@ -160,6 +159,9 @@ const App = () => {
                 value = parseFloat(
                   numberString.slice(0, numberString.length - 1)
                 );
+                if (isNaN(value)) {
+                  value = 0;
+                }
               }
               setNumber(value);
             };
@@ -332,12 +334,12 @@ const App = () => {
               return null;
             }
             if (operand2 !== null) {
-              if (operand2.toString().search(".") !== -1) {
+              if (operand2.toString().indexOf(".") === -1) {
                 setIsFloat(true);
               }
               return null;
             }
-            if (operand1.toString().search(".") !== -1) {
+            if (operand1.toString().indexOf(".") === -1) {
               setIsFloat(true);
             }
           }}
