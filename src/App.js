@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
 import { ReactComponent as Backspace } from "./backspace.svg";
 import { ReactComponent as Multiply } from "./multiply.svg";
@@ -8,6 +8,16 @@ const App = () => {
   const [operand2, setOperand2] = useState(null);
   const [operation, setOperation] = useState(null);
   const [isFloat, setIsFloat] = useState(false);
+  const [onScreen, setOnScreen] = useState(0);
+
+  useEffect(() => {
+    if (operand2 !== null) {
+      setOnScreen(operand2);
+    } else {
+      setOnScreen(operand1);
+    }
+
+  }, [operand1, operand2]);
 
   const handleOperation = {
     "+": (x, y) => Math.round((x + y) * 1000) / 1000,
@@ -86,17 +96,10 @@ const App = () => {
     setIsFloat(false);
   };
 
-  const result = () => {
-    if (!isFloat) {
-      return operand2 !== null ? operand2 : operand1;
-    }
-    return operand2 !== null ? `${operand2}.` : `${operand1}.`;
-  };
-
   return (
     <div className="app">
       <div className="app-wrapper">
-        <div className="app-result">{result()}</div>
+        <div className="app-result">{onScreen}</div>
         <button
           type="button"
           className="app-cell"
